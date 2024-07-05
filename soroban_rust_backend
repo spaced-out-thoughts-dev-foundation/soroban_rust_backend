@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Check for Ruby version
+required_version="3.2"
+current_version=$(ruby -e 'puts RUBY_VERSION')
+
+if [[ "$current_version" == "$required_version"* ]]; then
+  # Ruby version is correct, run the Ruby script
+  ruby lib/dtr_to_rust.rb "$1"
+else
+  # Ruby version is incorrect
+  echo "Error: Ruby $required_version is required. Current version is $current_version."
+  exit 1
+fi
