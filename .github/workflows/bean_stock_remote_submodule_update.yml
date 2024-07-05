@@ -1,0 +1,20 @@
+# .github/workflows/make.yml
+
+name: Bean Stock Remote Submodule Update
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  trigger-remote-workflow:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Repository Dispatch
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.PAT }}
+          repository: spaced-out-thoughts-dev-foundation/bean-stock
+          event-type: trigger-workflow
