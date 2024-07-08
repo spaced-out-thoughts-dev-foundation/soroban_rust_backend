@@ -7,3 +7,6 @@ run:
 
 version:
 	@./soroban_rust_backend version
+
+setup:
+	bundle install
