@@ -203,7 +203,6 @@ module DTRToRust
     def generate_instruction(instruction, spacing_scope, function_names, is_helper, assignment_name_to_scope_map,
                              function_inputs)
 
-      puts instruction
       handler = InstructionHandler.new(instruction, spacing_scope, function_names,
                                        dtr_contract.user_defined_types || [], is_helper, assignment_name_to_scope_map, function_inputs)
 

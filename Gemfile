@@ -4,7 +4,7 @@ source 'https://rubygems.org'
 
 # Gems here
 
-gem 'dtr_core'
+gem 'dtr_core', '0.9.0'
 
 group :test do
   gem 'pry'
@@ -13,4 +13,4 @@ group :test do
   gem 'rubocop-rspec'
 end
 
-ruby '3.2.2'
+ruby '~> 3.2.2'
