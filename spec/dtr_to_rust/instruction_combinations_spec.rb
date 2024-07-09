@@ -42,7 +42,9 @@ RSpec.describe 'Instruction Combinations' do
     end
 
     it 'returns the optimized instructions' do
-      actual = DTRToRust::Generator.generate_from_string(minimal_dtr_code).gsub("\n", '').gsub("\t", '').gsub(' ', '')
+      actual = DTRToRust::Generator.generate_from_string(minimal_dtr_code).gsub("\n", '').gsub("\t", '').gsub(
+        ' ', ''
+      )
       expected = expected_rust_code.gsub("\n", '').gsub("\t", '').gsub(' ', '')
 
       expect(actual).to eq(expected)
@@ -119,7 +121,9 @@ RSpec.describe 'Instruction Combinations' do
     end
 
     it 'returns the optimized instructions' do
-      actual = DTRToRust::Generator.generate_from_string(minimal_dtr_code).gsub("\n", '').gsub("\t", '').gsub(' ', '')
+      actual = DTRToRust::Generator.generate_from_string(minimal_dtr_code).gsub("\n", '').gsub("\t", '').gsub(
+        ' ', ''
+      )
       expected = expected_rust_code.gsub("\n", '').gsub("\t", '').gsub(' ', '')
 
       expect(actual).to eq(expected)
@@ -200,7 +204,9 @@ RSpec.describe 'Instruction Combinations' do
     end
 
     it 'returns the optimized instructions' do
-      actual = DTRToRust::Generator.generate_from_string(minimal_dtr_code).gsub("\n", '').gsub("\t", '').gsub(' ', '')
+      actual = DTRToRust::Generator.generate_from_string(minimal_dtr_code).gsub("\n", '').gsub("\t", '').gsub(
+        ' ', ''
+      )
       expected = expected_rust_code.gsub("\n", '').gsub("\t", '').gsub(' ', '')
 
       expect(actual).to eq(expected)
@@ -299,7 +305,9 @@ RSpec.describe 'Instruction Combinations' do
     end
 
     it 'returns the optimized instructions' do
-      actual = DTRToRust::Generator.generate_from_string(minimal_dtr_code).gsub("\n", '').gsub("\t", '').gsub(' ', '')
+      actual = DTRToRust::Generator.generate_from_string(minimal_dtr_code).gsub("\n", '').gsub("\t", '').gsub(
+        ' ', ''
+      )
       expected = expected_rust_code.gsub("\n", '').gsub("\t", '').gsub(' ', '')
 
       expect(actual).to eq(expected)
