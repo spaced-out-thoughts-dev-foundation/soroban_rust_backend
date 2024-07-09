@@ -5,7 +5,7 @@ require 'spec_helper'
 describe DTRToRust::Instruction::Print do
   describe '#handle' do
     it 'returns the correct Rust code' do
-      instruction = DTRCore::Instruction.new('print', ['env', '"count: {}"', 'count'], nil, 0)
+      instruction = DTRCore::Instruction.new('print', ['env', '"count: {}"', 'count'], nil, 0, 0)
 
       expect(described_class.handle(instruction, 0, [], [], false, [],
                                     {})).to eq('        log!(&env, "count: {}", count);')

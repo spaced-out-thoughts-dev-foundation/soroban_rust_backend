@@ -110,5 +110,5 @@ RSpec.describe DTRToRust::Optimization::BinaryXToSelfAssignmentReduction do
 end
 
 def ins(instruction, inputs, assign, scope)
-  DTRCore::Instruction.new(instruction, inputs, assign, scope)
+  DTRCore::Instruction.new(instruction, inputs, assign, scope, 0, 0)
 end

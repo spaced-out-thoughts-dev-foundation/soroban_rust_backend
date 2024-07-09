@@ -47,7 +47,7 @@ module DTRToRust
           apply_to_instruction_input(@cur_instruction, input)
         end
         @optimized_instructions << DTRCore::Instruction.new(@cur_instruction.instruction, @optimized_inputs,
-                                                            @cur_instruction&.assign, @cur_instruction.scope)
+                                                            @cur_instruction&.assign, @cur_instruction.scope, @cur_instruction.id)
 
         @memoize_assigns = {} unless clear_memoize?
         return unless @cur_instruction.assign && @cur_instruction.assign == @cur_instruction.assign.upcase && !%w[
@@ -105,7 +105,7 @@ module DTRToRust
       end
 
       def evaluate_input(_key, input)
-        InstructionHandler.new(DTRCore::Instruction.new('evaluate', input[:inputs], nil, 0), 0, [], [],
+        InstructionHandler.new(DTRCore::Instruction.new('evaluate', input[:inputs], nil, 0, 0), 0, [], [],
                                false, [], {}).generate_rust.strip.gsub(';', '')
       end
 

@@ -102,5 +102,5 @@ RSpec.configure do |config|
 end
 
 def ins(instruction, inputs, assign, scope)
-  DTRCore::Instruction.new(instruction, inputs, assign, scope)
+  DTRCore::Instruction.new(instruction, inputs, assign, scope, 0)
 end

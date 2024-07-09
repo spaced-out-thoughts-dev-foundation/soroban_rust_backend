@@ -30,7 +30,7 @@ module DTRToRust
         return instruction unless instruction.inputs.length == 2
 
         DTRCore::Instruction.new('assign', ["#{instruction.inputs[0]}.#{instruction.inputs[1]}"], instruction.assign,
-                                 instruction.scope)
+                                 instruction.scope, instruction.id)
       end
     end
   end

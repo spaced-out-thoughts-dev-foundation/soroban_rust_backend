@@ -50,5 +50,5 @@ RSpec.describe DTRToRust::Optimization::ChainedInvocationAssignmentReduction do
 end
 
 def ins(instruction, inputs, assign, scope)
-  DTRCore::Instruction.new(instruction, inputs, assign, scope)
+  DTRCore::Instruction.new(instruction, inputs, assign, scope, 0, 0)
 end

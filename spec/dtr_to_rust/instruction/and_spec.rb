@@ -4,7 +4,7 @@ require 'spec_helper'
 
 describe DTRToRust::Instruction::And do
   describe '#handle' do
-    let(:instruction) { DTRCore::Instruction.new('and', %w[foo bar], 'LOGICAL_RESULT', 0) }
+    let(:instruction) { DTRCore::Instruction.new('and', %w[foo bar], 'LOGICAL_RESULT', 0, 0) }
 
     it 'returns the correct string' do
       expect(described_class.handle(instruction, 0, [], [], false, [],

@@ -4,7 +4,7 @@ source 'https://rubygems.org'
 
 # Gems here
 
-gem 'dtr_core', '0.9.0'
+gem 'dtr_core', '0.10.0'
 
 group :test do
   gem 'pry'

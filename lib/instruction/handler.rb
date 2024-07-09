@@ -26,7 +26,8 @@ module DTRToRust
           @instruction.instruction,
           @instruction.inputs,
           "#{var_name}:#{Common::TypeTranslator.translate_type(type_name)}",
-          @instruction.scope
+          @instruction.scope,
+          @instruction.id
         )
       end
 

@@ -79,7 +79,7 @@ module DTRToRust
         assignment = match_on0 ? optimized_inputs[0] : optimized_inputsinputs[1]
 
         @optimized_instructions << DTRCore::Instruction.new(@cur_instruction.instruction, optimized_inputs, assignment,
-                                                            @cur_instruction.scope)
+                                                            @cur_instruction.scope, @cur_instruction.id)
 
         return unless @cur_instruction.assign && @cur_instruction.assign == @cur_instruction.assign.upcase
 
