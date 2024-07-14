@@ -13,7 +13,7 @@ module DTRToRust
           .gsub('Integer', 'i128')
           .gsub('ByteStringSmall', 'BytesN<32>')
           .gsub('ByteStringLarge', 'BytesN<64>')
-          .gsub('Symbol', 'String')
+          .gsub('String', 'Symbol')
           .gsub('Boolean', 'bool')
           .gsub('Float', 'f64')
       end
