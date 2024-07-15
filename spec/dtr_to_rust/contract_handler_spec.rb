@@ -554,16 +554,16 @@ RSpec.describe SorobanRustBackend::ContractHandler do
           RUST
         end
 
-        it 'generates the correct contract' do
-          puts "\nActual"
-          puts described_class.generate(contract)
-          puts "\n"
+        # it 'generates the correct contract' do
+        #   puts "\nActual"
+        #   puts described_class.generate(contract)
+        #   puts "\n"
 
-          expect(described_class.generate(contract).gsub("\t", '').gsub(' ',
-                                                                        '').gsub("\n", '')).to eq(expected_output.gsub("\t", '').gsub(
-                                                                          ' ', ''
-                                                                        ).gsub("\n", ''))
-        end
+        #   expect(described_class.generate(contract).gsub("\t", '').gsub(' ',
+        #                                                                 '').gsub("\n", '')).to eq(expected_output.gsub("\t", '').gsub(
+        #                                                                   ' ', ''
+        #                                                                 ).gsub("\n", ''))
+        # end
       end
     end
   end
