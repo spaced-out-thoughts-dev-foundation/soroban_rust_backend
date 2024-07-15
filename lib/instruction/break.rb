@@ -3,9 +3,9 @@
 module SorobanRustBackend
   module Instruction
     # This class handles the add instruction.
-    class Subtract < Handler
-      def initialize(instruction, metadata)
-        super('-', instruction, metadata)
+    class Break < Handler
+      def handle
+        'break;'
       end
     end
   end

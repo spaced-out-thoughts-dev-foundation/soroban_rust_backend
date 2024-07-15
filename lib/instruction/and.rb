@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module DTRToRust
+module SorobanRustBackend
   module Instruction
     # This class handles the and instruction.
     class And < Handler
@@ -10,9 +10,7 @@ module DTRToRust
 
         assignment_rust = "let #{assignment} = "
         body_rust = "#{inputs[0]} && #{inputs[1]};"
-        rust_string = "#{assignment.nil? ? '' : assignment_rust}#{body_rust}"
-
-        form_rust_string(rust_string)
+        "#{assignment.nil? ? '' : assignment_rust}#{body_rust}"
       end
     end
   end

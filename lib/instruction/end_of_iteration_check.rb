@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-module DTRToRust
+module SorobanRustBackend
   module Instruction
     class EndOfIterationCheck < Handler
       def handle
-        form_rust_string('if !iteration_finished {')
+        'if !iteration_finished {'
       end
     end
   end

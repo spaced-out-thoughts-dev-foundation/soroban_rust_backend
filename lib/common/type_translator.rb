@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module DTRToRust
+module SorobanRustBackend
   module Common
     # TypeTranslator translates DTR types to Rust types
     module TypeTranslator
@@ -13,7 +13,7 @@ module DTRToRust
           .gsub('Integer', 'i128')
           .gsub('ByteStringSmall', 'BytesN<32>')
           .gsub('ByteStringLarge', 'BytesN<64>')
-          .gsub('String', 'Symbol')
+          # .gsub('String', 'Symbol')
           .gsub('Boolean', 'bool')
           .gsub('Float', 'f64')
       end

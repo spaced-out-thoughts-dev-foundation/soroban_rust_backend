@@ -1,17 +1,11 @@
 # frozen_string_literal: true
 
-module DTRToRust
+module SorobanRustBackend
   # This class is responsible for generating Rust code for a single instruction.
   class InstructionHandler
-    def initialize(instruction, spacing_scope, function_names, user_defined_types, is_helper,
-                   assignment_name_to_scope_map, function_inputs)
+    def initialize(instruction, metadata)
       @instruction = instruction
-      @spacing_scope = spacing_scope
-      @function_names = function_names
-      @user_defined_types = user_defined_types
-      @is_helper = is_helper
-      @assignment_name_to_scope_map = assignment_name_to_scope_map
-      @function_inputs = function_inputs
+      @metadata = metadata
     end
 
     def generate_rust
@@ -19,20 +13,18 @@ module DTRToRust
         raise "Unknown instruction type: #{@instruction.instruction}"
       end
 
-      EXPRESSION_FOOBAR[@instruction.instruction.strip].send(:handle, @instruction, @spacing_scope, @function_names,
-                                                             @user_defined_types, @is_helper, @assignment_name_to_scope_map, @function_inputs)
+      EXPRESSION_FOOBAR[@instruction.instruction.strip].send(:handle, @instruction, @metadata)
     end
 
     private
 
     EXPRESSION_FOOBAR = {
       'assign' => Instruction::Assign,
+      'break' => Instruction::Break,
       'jump' => Instruction::Jump,
-      'goto' => Instruction::Goto,
       'exit_with_message' => Instruction::ExitWithMessage,
       'and' => Instruction::And,
       'or' => Instruction::Or,
-      'label' => Instruction::Label,
       'add' => Instruction::Add,
       'subtract' => Instruction::Subtract,
       'multiply' => Instruction::Multiply,
@@ -43,7 +35,8 @@ module DTRToRust
       'evaluate' => Instruction::Evaluate,
       'field' => Instruction::Field,
       'end_of_iteration_check' => Instruction::EndOfIterationCheck,
-      'increment' => Instruction::Increment
+      'increment' => Instruction::Increment,
+      'try_assign' => Instruction::TryAssign
     }.freeze
 
     def handle_empty_instruction

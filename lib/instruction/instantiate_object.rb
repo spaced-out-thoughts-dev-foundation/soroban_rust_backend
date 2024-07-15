@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module DTRToRust
+module SorobanRustBackend
   module Instruction
     # This class is responsible for generating Rust code for the LogString instruction.
     class InstantiateObject < Handler
@@ -11,9 +11,9 @@ module DTRToRust
         when 'UDT'
           handle_udt
         when 'Tuple'
-          form_rust_string("let mut #{@instruction.assign} = (#{normalish_inputs});")
+          "let mut #{@instruction.assign} = (#{normalish_inputs});"
         when 'Range'
-          form_rust_string("let mut #{@instruction.assign} = #{range_inputs};")
+          "let mut #{@instruction.assign} = #{range_inputs};"
         else
           raise "Unknown object type: #{@instruction.inputs[0]}"
         end
@@ -22,7 +22,7 @@ module DTRToRust
       private
 
       def handle_list
-        form_rust_string("let mut #{@instruction.assign} = vec![#{normalish_inputs}];")
+        "let mut #{@instruction.assign} = vec![#{normalish_inputs}];"
       end
 
       def range_inputs
@@ -46,13 +46,18 @@ module DTRToRust
       end
 
       def handle_udt
-        udt_found = @user_defined_types.filter { |udt| udt_name_fix(udt) == @instruction.inputs[1] }
+        # udt_found = @user_defined_types.filter { |udt| udt_name_fix(udt) == @instruction.inputs[1] }
 
-        assignment = "let mut #{@instruction.assign} = "
-        udt = "#{@instruction.inputs[1]}{"
-        inputs = inputs_to_rust_string(@instruction.inputs[2..], udt_found[0].attributes.map { |x| x[:name] })
-        end_ = '};'
-        form_rust_string("#{assignment}#{udt}#{inputs}#{end_}")
+        # assignment = "let mut #{@instruction.assign} = "
+        # udt = "#{@instruction.inputs[1]}{"
+        # inputs = inputs_to_rust_string(@instruction.inputs[2..], udt_found[0].attributes.map { |x| x[:name] })
+        # end_ = '};'
+        # form_rust_string("#{assignment}#{udt}#{inputs}#{end_}")
+
+        "let mut #{@instruction.assign} = #{@instruction.inputs[1]}{#{inputs_to_rust_string(@instruction.inputs[2..],
+                                                                                            @instruction.inputs[1])}}"
+
+        # raise 'Not implemented'
       end
 
       def inputs_to_rust_string(inputs, udt_type_names)
@@ -65,15 +70,16 @@ module DTRToRust
       end
 
       def foobar(input)
-        decorated_input = Common::InputInterpreter.interpret(input)
+        input
+        # decorated_input = Common::InputInterpreter.interpret(input)
 
-        if decorated_input[:type] == 'string'
-          "symbol_short!(#{input})"
-        elsif decorated_input[:needs_reference] && input == 'env'
-          "&#{input}"
-        else
-          input
-        end
+        # if decorated_input[:type] == 'string'
+        #   "symbol_short!(#{input})"
+        # elsif decorated_input[:needs_reference] && input == 'env'
+        #   "&#{input}"
+        # else
+        #   input
+        # end
       end
 
       def handle_input(input, udt_type_name)

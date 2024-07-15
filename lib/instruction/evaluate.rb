@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 
-module DTRToRust
+module SorobanRustBackend
   module Instruction
     # This class is responsible for generating Rust code for the Evaluate instruction.
     class Evaluate < Handler
       def handle
-        rust_string = handle_keyword_method_invocation
-        form_rust_string(rust_string)
+        handle_keyword_method_invocation
       end
 
       private
@@ -27,9 +26,15 @@ module DTRToRust
           handle_binary('>=')
         when 'not_equal_to'
           handle_binary('!=')
+        when 'start'
+          handle_start
         else
           handle_non_keyword_method_invocation
         end
+      end
+
+      def handle_start
+        "let mut OPTION_#{@instruction.assign} = #{@instruction.inputs[1]}.next();"
       end
 
       def handle_non_keyword_method_invocation
@@ -91,17 +96,19 @@ module DTRToRust
       end
 
       def invocation_name(evaluated_method_name)
-        if @function_names.include?(evaluated_method_name)
-          "Self::#{evaluated_method_name}"
-        else
-          evaluated_method_name
-        end
+        # if @function_names.include?(evaluated_method_name)
+        # "Self::#{evaluated_method_name}"
+        # else
+        evaluated_method_name
+        # end
       end
 
-      def inputs_to_rust_string(inputs, ref_nums, ref_vars)
-        inputs.map do |input|
-          ref_vars ? Common::ReferenceAppender.call(input, ref_nums:, function_inputs: @function_inputs) : input
-        end.join(', ')
+      def inputs_to_rust_string(inputs, _ref_nums, _ref_vars)
+        # inputs.map do |input|
+        #   ref_vars ? Common::ReferenceAppender.call(input, ref_nums:, function_inputs: @function_inputs) : input
+        # end.join(', ')
+
+        inputs.join(', ')
       end
     end
   end

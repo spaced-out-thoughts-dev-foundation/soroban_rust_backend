@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'dtr_to_rust'
+require 'soroban_rust_backend'
 require 'open3'
 require 'dtr_core'
 
@@ -101,6 +101,82 @@ RSpec.configure do |config|
   #   Kernel.srand config.seed
 end
 
-def ins(instruction, inputs, assign, scope)
-  DTRCore::Instruction.new(instruction, inputs, assign, scope, 0)
+def ins(instruction:, inputs:, scope:, id:, assign: nil)
+  DTRCore::Instruction.new(instruction, inputs, assign, scope, id)
+end
+
+def complex_nested_if_statement
+  [
+    # 5
+    ins(instruction: 'evaluate', inputs: ['greater_than', 'some_input', 10], assign: 'CONDITIONAL_JUMP_ASSIGNMENT_0',
+        scope: 0, id: 5),
+    # 7
+    ins(instruction: 'jump', inputs: ['CONDITIONAL_JUMP_ASSIGNMENT_0', 6], scope: 0, id: 7),
+    # 13
+    ins(instruction: 'evaluate', inputs: ['greater_than', 'some_input', 15], assign: 'CONDITIONAL_JUMP_ASSIGNMENT_8',
+        scope: 6, id: 13),
+    # 15
+    ins(instruction: 'jump', inputs: ['CONDITIONAL_JUMP_ASSIGNMENT_8', 14], scope: 6, id: 15),
+    # 16
+    ins(instruction: 'assign', inputs: ['5'], assign: 'x', scope: 14, id: 16),
+    # 21
+    ins(instruction: 'add', inputs: ['x', 10], assign: 'x', scope: 14, id: 21),
+    # 27
+    ins(instruction: 'evaluate', inputs: %w[greater_than x some_input], assign: 'CONDITIONAL_JUMP_ASSIGNMENT_22',
+        scope: 14, id: 27),
+    # 29
+    ins(instruction: 'jump', inputs: ['CONDITIONAL_JUMP_ASSIGNMENT_22', 28], scope: 14, id: 29),
+    # 30
+    ins(instruction: 'print', inputs: ['Some input is greater than 15'], scope: 28, id: 30),
+    # 31
+    ins(instruction: 'jump', inputs: ['14'], scope: 28, id: 31),
+    # 38
+    ins(instruction: 'evaluate', inputs: %w[equal_to x some_input], assign: 'CONDITIONAL_JUMP_ASSIGNMENT_33',
+        scope: 14, id: 38),
+    # 40
+    ins(instruction: 'jump', inputs: ['CONDITIONAL_JUMP_ASSIGNMENT_33', 39], scope: 14, id: 40),
+    # 44
+    ins(instruction: 'jump', inputs: ['43'], scope: 14, id: 44),
+    # 41
+    ins(instruction: 'assign', inputs: ['x'], assign: 'RETURN_VALUE_LABEL_32', scope: 39, id: 41),
+    # 42
+    ins(instruction: 'jump', inputs: ['14'], scope: 39, id: 42),
+    # 45
+    ins(instruction: 'assign', inputs: ['some_input'], assign: 'RETURN_VALUE_LABEL_32', scope: 43, id: 45),
+    # 46
+    ins(instruction: 'jump', inputs: ['14'], scope: 43, id: 46),
+    # 47
+    ins(instruction: 'return', inputs: ['RETURN_VALUE_LABEL_32'], scope: 14, id: 47),
+    # 49
+    ins(instruction: 'jump', inputs: ['0'], scope: 6, id: 49),
+    # 54
+    ins(instruction: 'add', inputs: ['some_input', 1], assign: 'some_input', scope: 0, id: 54),
+    # 0
+    ins(instruction: 'return', inputs: ['some_input'], scope: 0, id: 0)
+  ]
+end
+
+def match_statement
+  [
+    # 3
+    ins(instruction: 'assign', inputs: ['42'], assign: 'answer_to_life', scope: 0, id: 3),
+    # 4
+    ins(instruction: 'jump', inputs: ['answer_to_life == 42', '1'], scope: 0, id: 4),
+    # 5
+    ins(instruction: 'jump', inputs: ['answer_to_life == 43', '2'], scope: 0, id: 5),
+    # 6
+    ins(instruction: 'jump', inputs: ['3'], scope: 0, id: 6),
+    # 7
+    ins(instruction: 'print', inputs: ['The answer to life is 42!'], scope: 1, id: 7),
+    # 8
+    ins(instruction: 'jump', inputs: ['0'], scope: 1, id: 8),
+    # 9
+    ins(instruction: 'print', inputs: ['The answer to life is not 43. Close but no cigar!'], scope: 2, id: 9),
+    # 10
+    ins(instruction: 'jump', inputs: ['0'], scope: 2, id: 10),
+    # 11
+    ins(instruction: 'print', inputs: ['The answer to life is definitely not that.'], scope: 3, id: 11),
+    # 12
+    ins(instruction: 'jump', inputs: ['0'], scope: 3, id: 12)
+  ]
 end
