@@ -1,7 +1,7 @@
 ---
 name: soroban_rust_backend
 type: backend
-version: 0.14.0
+version: 0.14.1
 description: Backend for Soroban. Compiles DTR to Rust SDK.
 command: make run FILEPATH
 author: rob | me@robdurst.com
