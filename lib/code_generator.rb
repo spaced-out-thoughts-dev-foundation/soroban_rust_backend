@@ -1,8 +1,10 @@
 module SorobanRustBackend
   class CodeGenerator
-    def initialize(instructions, base_indentation: 0)
+    def initialize(instructions, base_indentation: 0, user_defined_types: [], function_names: [])
       @instructions = instructions
       @base_indentation = base_indentation
+      @user_defined_types = user_defined_types
+      @function_names = function_names
 
       silviculturist = SorobanRustBackend::Silviculturist.new(instructions, base_indentation:)
       silviculturist.make_forrest
@@ -64,8 +66,50 @@ module SorobanRustBackend
           instruction.scope,
           instruction.id
         )
+      elsif udt?(instruction)
+        inputs = instruction.inputs
+        udt_found = nil
+
+        @user_defined_types.each do |udt|
+          fixed_udt_name = udt_name_fix(udt)
+
+          if fixed_udt_name == inputs[1]
+            udt_found = inputs.push(udt)
+            break
+          end
+        end
+
+        raise "Unable to instantiate unrecognized UDT: #{inputs[1]}" if udt_found.nil?
+
+        DTRCore::Instruction.new(
+          'instantiate_object',
+          inputs,
+          instruction.assign,
+          instruction.scope,
+          instruction.id
+        )
+      elsif instruction.instruction == 'evaluate'
+        method_name = instruction.inputs[0]
+
+        method_name = "Self::#{method_name}" if @function_names.include?(method_name)
+
+        DTRCore::Instruction.new(
+          'evaluate',
+          [method_name] + instruction.inputs[1..],
+          instruction.assign,
+          instruction.scope,
+          instruction.id
+        )
       else
         instruction
+      end
+    end
+
+    def udt_name_fix(udt)
+      if udt.name.end_with?('_STRUCT') || udt.name.end_with?('_ENUM')
+        udt.name.split('_')[0..-2].join('_')
+      else
+        udt.name
       end
     end
 
@@ -85,6 +129,10 @@ module SorobanRustBackend
         metadata[:end_of_iteration_check] &&
         metadata[:end_of_iteration_check][:assign] == instruction.inputs[0] &&
         metadata[:parent_scope] == instruction.scope
+    end
+
+    def udt?(instruction)
+      instruction.instruction == 'instantiate_object' && instruction.inputs[0] == 'UDT'
     end
   end
 end

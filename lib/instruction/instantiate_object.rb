@@ -46,18 +46,16 @@ module SorobanRustBackend
       end
 
       def handle_udt
-        # udt_found = @user_defined_types.filter { |udt| udt_name_fix(udt) == @instruction.inputs[1] }
+        udt_found = @instruction.inputs[@instruction.inputs.size - 1]
 
-        # assignment = "let mut #{@instruction.assign} = "
-        # udt = "#{@instruction.inputs[1]}{"
-        # inputs = inputs_to_rust_string(@instruction.inputs[2..], udt_found[0].attributes.map { |x| x[:name] })
-        # end_ = '};'
-        # form_rust_string("#{assignment}#{udt}#{inputs}#{end_}")
-
-        "let mut #{@instruction.assign} = #{@instruction.inputs[1]}{#{inputs_to_rust_string(@instruction.inputs[2..],
-                                                                                            @instruction.inputs[1])}}"
-
-        # raise 'Not implemented'
+        inputs_sans_udt = @instruction.inputs[..-3][2..]
+        assignment = "let mut #{@instruction.assign} = "
+        udt = "#{@instruction.inputs[1]}{"
+        inputs = inputs_to_rust_string(inputs_sans_udt, udt_found.attributes.map do |x|
+                                                          x[:name]
+                                                        end)
+        end_ = '};'
+        "#{assignment}#{udt}#{inputs}#{end_}"
       end
 
       def inputs_to_rust_string(inputs, udt_type_names)

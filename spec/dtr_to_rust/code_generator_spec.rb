@@ -447,10 +447,6 @@ RSpec.describe SorobanRustBackend::CodeGenerator do
       end
 
       it 'generates the correct Rust code' do
-        puts "\nActual"
-        puts described_class.new(instructions).generate
-        puts "\n"
-
         expect(described_class.new(instructions).generate).to eq(expected_output)
       end
     end
@@ -501,10 +497,6 @@ RSpec.describe SorobanRustBackend::CodeGenerator do
       end
 
       it 'generates the correct Rust code' do
-        puts "\nActual"
-        puts described_class.new(instructions).generate
-        puts "\n"
-
         expect(described_class.new(instructions).generate).to eq(expected_output)
       end
     end

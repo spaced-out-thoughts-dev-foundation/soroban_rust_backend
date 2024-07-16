@@ -49,9 +49,9 @@ RSpec.describe SorobanRustBackend::UserDefinedTypesHandler do
           #[contracttype]
           #[derive(Clone, Debug, Eq, PartialEq)]
           pub enum Person {
-              Robot: (i32),
-              Astronaut: (),
-              DogWhisperer: (String,  bool),
+              Robot(i32),
+              Astronaut,
+              DogWhisperer(String,  bool),
           }
 
         RUST

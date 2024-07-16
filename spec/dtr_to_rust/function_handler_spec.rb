@@ -24,10 +24,53 @@ RSpec.describe SorobanRustBackend::FunctionHandler do
       end
 
       it 'generates the correct function' do
-        expect(described_class.generate(function, false).gsub("\t", '').gsub(' ',
-                                                                             '').gsub("\n", '')).to eq(expected_output.gsub("\t", '').gsub(
-                                                                               ' ', ''
-                                                                             ).gsub("\n", ''))
+        expect(described_class.generate(function, false, []).gsub("\t", '').gsub(' ',
+                                                                                 '').gsub("\n", '')).to eq(expected_output.gsub("\t", '').gsub(
+                                                                                   ' ', ''
+                                                                                 ).gsub("\n", ''))
+      end
+    end
+
+    context 'when function instantiates a user defined type' do
+      let(:function) do
+        DTRCore::Function.new(
+          'make_foobar_udt',
+          [],
+          nil,
+          [
+            ins(instruction: 'instantiate_object', inputs: %w[UDT Foobar 0 "hello" false],
+                assign: 'udt_result', scope: 0, id: 0)
+          ]
+        )
+      end
+
+      let(:expected_output) do
+        <<~RUST
+          pub fn make_foobar_udt() {
+            let mut udt_result = Foobar { num: 0, name: "hello", is_active: false };
+          }
+        RUST
+      end
+
+      let(:udts) do
+        [
+          DTRCore::UserDefinedType.new(
+            'Foobar',
+            [
+              { name: 'num', type_name: 'Integer' },
+              { name: 'name', type_name: 'String' },
+              { name: 'is_active', type_name: 'Boolean' }
+            ]
+          )
+        ]
+      end
+
+      it 'generates the correct function' do
+        result = described_class.generate(function, false, udts)
+        expect(result.gsub("\t", '').gsub(' ',
+                                          '').gsub("\n", '')).to eq(expected_output.gsub("\t", '').gsub(
+                                            ' ', ''
+                                          ).gsub("\n", ''))
       end
     end
 
@@ -89,10 +132,7 @@ RSpec.describe SorobanRustBackend::FunctionHandler do
       end
 
       it 'generates the correct function' do
-        result = described_class.generate(function, false)
-        puts "\nResult"
-        puts result
-        puts "\n"
+        result = described_class.generate(function, false, [])
         expect(result.gsub("\t", '').gsub(' ',
                                           '').gsub("\n", '')).to eq(expected_output.gsub("\t", '').gsub(
                                             ' ', ''

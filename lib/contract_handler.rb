@@ -46,10 +46,9 @@ module SorobanRustBackend
     end
 
     def generate_functions_each(functions, is_helper)
-      # function_names = functions&.map(&:name)
-
+      function_names = functions.map(&:name)
       functions&.map do |function|
-        FunctionHandler.generate(function, is_helper)
+        FunctionHandler.generate(function, is_helper, dtr_contract.user_defined_types, function_names)
       end&.join("\n")
     end
 

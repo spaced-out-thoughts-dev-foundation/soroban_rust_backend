@@ -1,12 +1,14 @@
 module SorobanRustBackend
   class FunctionHandler
-    def initialize(function, is_helper)
+    def initialize(function, is_helper, user_defined_types, function_names)
       @function = function
       @is_helper = is_helper
+      @user_defined_types = user_defined_types
+      @function_names = function_names
     end
 
-    def self.generate(function, is_helper)
-      new(function, is_helper).generate
+    def self.generate(function, is_helper, user_defined_types, function_names)
+      new(function, is_helper, user_defined_types, function_names).generate
     end
 
     def generate
@@ -21,7 +23,7 @@ module SorobanRustBackend
       end
       content += generate_instructions_for_blocks(@function.instructions)
 
-      content += "\n#{@is_helper ? '' : '    '}}\n"
+      content += "#{@is_helper ? '' : '    '}}\n"
 
       content
     end
@@ -41,7 +43,8 @@ module SorobanRustBackend
     end
 
     def generate_instructions_for_blocks(instructions)
-      CodeGenerator.new(instructions, base_indentation: @is_helper ? 1 : 2).generate
+      CodeGenerator.new(instructions, base_indentation: @is_helper ? 1 : 2,
+                                      user_defined_types: @user_defined_types, function_names: @function_names).generate
     end
   end
 end

@@ -41,16 +41,16 @@ module SorobanRustBackend
             Common::TypeTranslator.translate_type(x)
           end
           if inner_types.empty? || x[:type] == '()'
-            "    #{x[:name]}: (),"
+            "    #{x[:name]},"
           else
-            "    #{x[:name]}: (#{inner_types.join(', ')}),"
+            "    #{x[:name]}(#{inner_types.join(', ')}),"
           end
         elsif x[:type]&.match(/\d+/)
           "    #{x[:name]} = #{x[:type]},"
         elsif x[:type] && x[:type] != '()'
-          "    #{x[:name]}: (#{Common::TypeTranslator.translate_type(x[:type])}),"
+          "    #{x[:name]}(#{Common::TypeTranslator.translate_type(x[:type])}),"
         else
-          "    #{x[:name]}: (),"
+          "    #{x[:name]},"
         end
       end.join("\n")
     end

@@ -54,30 +54,5 @@ module SorobanRustBackend
     def all_paths_to(instruction_id)
       @trees.map { |x| x.all_paths_to(instruction_id) }.flatten(1).compact
     end
-
-    def walk_it
-      @trees.each do |x|
-        puts "Walking tree #{x.tree_id}"
-
-        stack = []
-        symbol_table = {}
-
-        stack << x
-
-        while stack.any?
-          current = stack.pop
-
-          if current.value.assign
-            symbol_table[current.value.assign] = {
-              value: current.value.id
-            }
-          end
-
-          stack << current.left_child if current.left_child
-
-          stack << current.right_child if current.right_child
-        end
-      end
-    end
   end
 end

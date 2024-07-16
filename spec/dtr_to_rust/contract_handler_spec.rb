@@ -52,7 +52,105 @@ RSpec.describe SorobanRustBackend::ContractHandler do
                     let Thing_to_return: Vec<String>;
                     let mut Thing_to_return = vec![env, "Hello", to];
                     return Thing_to_return;
+                }
+            }
+          RUST
+        end
 
+        it 'generates the correct contract' do
+          expect(described_class.generate(contract)).to eq(expected_output)
+        end
+      end
+
+      context 'when increment contract' do
+        let(:contract_name) { 'IncrementContract' }
+        let(:contract_state) do
+          [
+            DTRCore::State.new(
+              'COUNTER',
+              'Symbol',
+              '"COUNTER"'
+            )
+          ]
+        end
+        let(:contract_user_defined_types) { nil }
+        let(:contract_interface) do
+          [
+            DTRCore::Function.new(
+              'increment',
+              [
+                { name: 'env', type_name: 'Env' }
+              ],
+              'Integer',
+              [
+
+                ins(instruction: 'evaluate', inputs: ['env.storage'], assign: 'METHOD_CALL_EXPRESSION_6', scope: 0,
+                    id: 9),
+                ins(instruction: 'evaluate', inputs: ['METHOD_CALL_EXPRESSION_6.instance'],
+                    assign: 'METHOD_CALL_EXPRESSION_5', scope: 0, id: 10),
+                ins(instruction: 'evaluate', inputs: ['METHOD_CALL_EXPRESSION_5.get', 'COUNTER'],
+                    assign: 'METHOD_CALL_EXPRESSION_2', scope: 0, id: 11),
+                ins(instruction: 'evaluate', inputs: ['METHOD_CALL_EXPRESSION_2.unwrap_or', '0'],
+                    assign: 'count|||Integer', scope: 0, id: 12),
+                ins(instruction: 'print', inputs: ['env', '"count: {}"', 'count'], scope: 0, id: 13),
+                ins(instruction: 'add', inputs: %w[count 1], assign: 'count', scope: 0, id: 18),
+                ins(instruction: 'evaluate', inputs: ['env.storage'], assign: 'METHOD_CALL_EXPRESSION_24', scope: 0,
+                    id: 27),
+                ins(instruction: 'evaluate', inputs: ['METHOD_CALL_EXPRESSION_24.instance'],
+                    assign: 'METHOD_CALL_EXPRESSION_23', scope: 0, id: 28),
+                ins(instruction: 'evaluate', inputs: ['METHOD_CALL_EXPRESSION_23.set', 'COUNTER', 'count'], scope: 0,
+                    id: 29),
+                ins(instruction: 'evaluate', inputs: ['env.storage'], assign: 'METHOD_CALL_EXPRESSION_35', scope: 0,
+                    id: 38),
+                ins(instruction: 'evaluate', inputs: ['METHOD_CALL_EXPRESSION_35.instance'],
+                    assign: 'METHOD_CALL_EXPRESSION_34', scope: 0, id: 39),
+                ins(instruction: 'evaluate', inputs: ['METHOD_CALL_EXPRESSION_34.extend_ttl', '50', '100'], scope: 0,
+                    id: 40),
+                ins(instruction: 'return', inputs: ['count'], scope: 0, id: 0)
+              ]
+            )
+          ]
+        end
+        let(:contract_helpers) { nil }
+        let(:contract_non_translatables) { nil }
+
+        let(:contract) do
+          DTRCore::Contract.new(
+            contract_name,
+            contract_state,
+            contract_interface,
+            contract_user_defined_types,
+            contract_helpers,
+            contract_non_translatables
+          )
+        end
+
+        let(:expected_output) do
+          <<~RUST
+            #![no_std]
+            use soroban_sdk::{Symbol, symbol_short, contract, contractimpl, Env, log, auth::Context, IntoVal, unwrap::UnwrapOptimized};
+
+            const COUNTER: Symbol = symbol_short!("COUNTER");
+            #[contract]
+            pub struct IncrementContract;
+
+            #[contractimpl]
+            impl IncrementContract {
+                pub fn increment(env: Env) -> i128 {
+                    let Thing_to_return: i128;
+                    let mut METHOD_CALL_EXPRESSION_6 = env.storage();
+                    let mut METHOD_CALL_EXPRESSION_5 = METHOD_CALL_EXPRESSION_6.instance();
+                    let mut METHOD_CALL_EXPRESSION_2 = METHOD_CALL_EXPRESSION_5.get(COUNTER);
+                    let mut count: i128 = METHOD_CALL_EXPRESSION_2.unwrap_or(0);
+                    log!(env, "count: {}", count);
+                    count = count + 1;
+                    let mut METHOD_CALL_EXPRESSION_24 = env.storage();
+                    let mut METHOD_CALL_EXPRESSION_23 = METHOD_CALL_EXPRESSION_24.instance();
+                    METHOD_CALL_EXPRESSION_23.set(COUNTER, count);
+                    let mut METHOD_CALL_EXPRESSION_35 = env.storage();
+                    let mut METHOD_CALL_EXPRESSION_34 = METHOD_CALL_EXPRESSION_35.instance();
+                    METHOD_CALL_EXPRESSION_34.extend_ttl(50, 100);
+                    return count;
                 }
             }
           RUST
@@ -180,7 +278,6 @@ RSpec.describe SorobanRustBackend::ContractHandler do
                         Thing_to_return = Err(Error::LimitReached);
                     }
                     return Thing_to_return;
-
                 }
             }
           RUST
@@ -340,10 +437,6 @@ RSpec.describe SorobanRustBackend::ContractHandler do
         end
 
         it 'generates the correct contract' do
-          puts "\nActual"
-          puts described_class.generate(contract)
-          puts "\n"
-
           expect(described_class.generate(contract).gsub("\t", '').gsub(' ',
                                                                         '').gsub("\n", '')).to eq(expected_output.gsub("\t", '').gsub(
                                                                           ' ', ''
@@ -356,6 +449,12 @@ RSpec.describe SorobanRustBackend::ContractHandler do
         let(:contract_state) { nil }
         let(:contract_user_defined_types) do
           [
+            DTRCore::UserDefinedType.new(
+              'DataKey_ENUM',
+              [
+                { name: 'Offer', type: '()' }
+              ]
+            ),
             DTRCore::UserDefinedType.new(
               'Offer_STRUCT',
               [
@@ -391,6 +490,7 @@ RSpec.describe SorobanRustBackend::ContractHandler do
                     assign: 'CONDITIONAL_JUMP_ASSIGNMENT_0', scope: 0, id: 9),
                 ins(instruction: 'jump', inputs: ['CONDITIONAL_JUMP_ASSIGNMENT_0', 10], scope: 0, id: 11),
                 ins(instruction: 'exit_with_message', inputs: ['"offer is already created"'], scope: 10, id: 12),
+                ins(instruction: 'jump', inputs: ['0'], scope: 10, id: 112),
                 ins(instruction: 'evaluate', inputs: %w[equal_to buy_price 0],
                     assign: 'BINARY_EXPRESSION_LEFT_15', scope: 0, id: 21),
                 ins(instruction: 'evaluate', inputs: %w[equal_to sell_price 0],
@@ -399,6 +499,7 @@ RSpec.describe SorobanRustBackend::ContractHandler do
                     assign: 'CONDITIONAL_JUMP_ASSIGNMENT_14', scope: 0, id: 27),
                 ins(instruction: 'jump', inputs: ['CONDITIONAL_JUMP_ASSIGNMENT_14', 28], scope: 0, id: 29),
                 ins(instruction: 'exit_with_message', inputs: ['"zero price is not allowed"'], scope: 28, id: 30),
+                ins(instruction: 'jump', inputs: ['0'], scope: 28, id: 130),
                 ins(instruction: 'evaluate', inputs: ['seller.require_auth'], scope: 0, id: 34),
                 ins(instruction: 'instantiate_object',
                     inputs: %w[UDT Offer seller sell_token buy_token sell_price buy_price], assign: 'CALL_EXPRESSION_ARG_2_37', scope: 0, id: 43),
@@ -425,12 +526,13 @@ RSpec.describe SorobanRustBackend::ContractHandler do
                     assign: 'METHOD_CALL_EXPRESSION_78', scope: 0, id: 86),
                 ins(instruction: 'evaluate', inputs: ['METHOD_CALL_EXPRESSION_78.unwrap_optimized'],
                     assign: 'BINARY_EXPRESSION_LEFT_76', scope: 0, id: 87),
-                ins(instruction: 'evaluate', inputs: ['divide', 'BINARY_EXPRESSION_LEFT_76', 'offer.buy_price'],
+                ins(instruction: 'divide', inputs: ['BINARY_EXPRESSION_LEFT_76', 'offer.buy_price'],
                     assign: 'sell_token_amount', scope: 0, id: 92),
                 ins(instruction: 'evaluate', inputs: %w[less_than sell_token_amount min_sell_token_amount],
                     assign: 'CONDITIONAL_JUMP_ASSIGNMENT_93', scope: 0, id: 98),
                 ins(instruction: 'jump', inputs: ['CONDITIONAL_JUMP_ASSIGNMENT_93', 99], scope: 0, id: 100),
                 ins(instruction: 'exit_with_message', inputs: ['"price is too low"'], scope: 99, id: 101),
+                ins(instruction: 'jump', inputs: ['0'], scope: 99, id: 1010),
                 ins(instruction: 'evaluate', inputs: ['e.current_contract_address'], assign: 'contract', scope: 0,
                     id: 105),
                 ins(instruction: 'evaluate',
@@ -477,6 +579,7 @@ RSpec.describe SorobanRustBackend::ContractHandler do
                     assign: 'CONDITIONAL_JUMP_ASSIGNMENT_167', scope: 0, id: 180),
                 ins(instruction: 'jump', inputs: ['CONDITIONAL_JUMP_ASSIGNMENT_167', 181], scope: 0, id: 182),
                 ins(instruction: 'exit_with_message', inputs: ['"zero price is not allowed"'], scope: 181, id: 183),
+                ins(instruction: 'jump', inputs: ['0'], scope: 181, id: 1010),
                 ins(instruction: 'evaluate', inputs: %w[load_offer e], assign: 'offer', scope: 0, id: 189),
                 ins(instruction: 'evaluate', inputs: ['offer.seller.require_auth'], scope: 0, id: 195),
                 ins(instruction: 'assign', inputs: ['sell_price'], assign: 'offer.sell_price', scope: 0, id: 203),
@@ -507,7 +610,7 @@ RSpec.describe SorobanRustBackend::ContractHandler do
               ],
               'Offer',
               [
-                ins(instruction: 'evaluate', inputs: ['e.storage'], assign: 'METHOD_CALL_EXPRESSION_4', scope: 0,
+                ins(instruction: 'evaluate', inputs: ['env.storage'], assign: 'METHOD_CALL_EXPRESSION_4', scope: 0,
                     id: 7),
                 ins(instruction: 'evaluate', inputs: ['METHOD_CALL_EXPRESSION_4.instance'],
                     assign: 'METHOD_CALL_EXPRESSION_3', scope: 0, id: 8),
@@ -526,7 +629,7 @@ RSpec.describe SorobanRustBackend::ContractHandler do
               ],
               nil,
               [
-                ins(instruction: 'evaluate', inputs: ['e.storage'], assign: 'METHOD_CALL_EXPRESSION_5', scope: 0,
+                ins(instruction: 'evaluate', inputs: ['env.storage'], assign: 'METHOD_CALL_EXPRESSION_5', scope: 0,
                     id: 8),
                 ins(instruction: 'evaluate', inputs: ['METHOD_CALL_EXPRESSION_5.instance'],
                     assign: 'METHOD_CALL_EXPRESSION_4', scope: 0, id: 9),
@@ -551,19 +654,318 @@ RSpec.describe SorobanRustBackend::ContractHandler do
         let(:expected_output) do
           <<~RUST
             #![no_std]
+            use soroban_sdk::{contract, contracttype, Address, token, contractimpl, Env, auth::Context, IntoVal, unwrap::UnwrapOptimized};
+
+            #[contracttype]
+            #[derive(Clone, Debug, Eq, PartialEq)]
+            pub enum DataKey {
+                Offer,
+            }
+
+            #[contracttype]
+            #[derive(Clone, Debug, Eq, PartialEq)]
+            pub struct Offer {
+                pub seller: Address,
+                pub sell_token: Address,
+                pub buy_token: Address,
+                pub sell_price: i128,
+                pub buy_price: i128,
+            }
+
+            #[contract]
+            pub struct SingleOfferContract;
+
+            #[contractimpl]
+            impl SingleOfferContract {
+                pub fn create(e: Env, seller: Address, sell_token: Address, buy_token: Address, sell_price: i128, buy_price: i128)  {
+                    let mut METHOD_CALL_EXPRESSION_4 = e.storage();
+                    let mut METHOD_CALL_EXPRESSION_3 = METHOD_CALL_EXPRESSION_4.instance();
+                    let mut CONDITIONAL_JUMP_ASSIGNMENT_0 = METHOD_CALL_EXPRESSION_3.has(DataKey::Offer);
+                    if CONDITIONAL_JUMP_ASSIGNMENT_0 {
+                        panic!("offer is already created");
+                    }
+                    let BINARY_EXPRESSION_LEFT_15 = buy_price == 0;
+                    let BINARY_EXPRESSION_RIGHT_16 = sell_price == 0;
+                    let CONDITIONAL_JUMP_ASSIGNMENT_14 = BINARY_EXPRESSION_LEFT_15 || BINARY_EXPRESSION_RIGHT_16;
+                    if CONDITIONAL_JUMP_ASSIGNMENT_14 {
+                        panic!("zero price is not allowed");
+                    }
+                    seller.require_auth();
+                    let mut CALL_EXPRESSION_ARG_2_37 = Offer{seller: seller, sell_token: sell_token, buy_token: buy_token, sell_price: sell_price, buy_price: buy_price};
+                    write_offer(e, CALL_EXPRESSION_ARG_2_37);
+                }
+
+
+                pub fn trade(e: Env, buyer: Address, buy_token_amount: i128, min_sell_token_amount: i128)  {
+                    buyer.require_auth();
+                    let mut offer = load_offer(e);
+                    let mut sell_token_client = token::Client::new(e, offer.sell_token);
+                    let mut buy_token_client = token::Client::new(e, offer.buy_token);
+                    let mut METHOD_CALL_EXPRESSION_78 = buy_token_amount.checked_mul(offer.sell_price);
+                    let mut BINARY_EXPRESSION_LEFT_76 = METHOD_CALL_EXPRESSION_78.unwrap_optimized();
+                    sell_token_amount = BINARY_EXPRESSION_LEFT_76 / offer.buy_price;
+                    let CONDITIONAL_JUMP_ASSIGNMENT_93 = sell_token_amount < min_sell_token_amount;
+                    if CONDITIONAL_JUMP_ASSIGNMENT_93 {
+                        panic!("price is too low");
+                    }
+                    let mut contract = e.current_contract_address();
+                    buy_token_client.transfer(buyer, contract, buy_token_amount);
+                    sell_token_client.transfer(contract, buyer, sell_token_amount);
+                    buy_token_client.transfer(contract, offer.seller, buy_token_amount);
+                }
+
+
+                pub fn withdraw(e: Env, token: Address, amount: i128)  {
+                    let mut offer = load_offer(e);
+                    offer.seller.require_auth();
+                    let mut METHOD_CALL_EXPRESSION_158 = token::Client::new(e, token);
+                    let mut METHOD_CALL_ARG_1_147 = e.current_contract_address();
+                    METHOD_CALL_EXPRESSION_158.transfer(METHOD_CALL_ARG_1_147, offer.seller, amount);
+                }
+
+
+                pub fn updt_price(e: Env, sell_price: i128, buy_price: i128)  {
+                    let BINARY_EXPRESSION_LEFT_168 = buy_price == 0;
+                    let BINARY_EXPRESSION_RIGHT_169 = sell_price == 0;
+                    let CONDITIONAL_JUMP_ASSIGNMENT_167 = BINARY_EXPRESSION_LEFT_168 || BINARY_EXPRESSION_RIGHT_169;
+                    if CONDITIONAL_JUMP_ASSIGNMENT_167 {
+                        panic!("zero price is not allowed");
+                    }
+                    let mut offer = load_offer(e);
+                    offer.seller.require_auth();
+                    offer.sell_price = sell_price;
+                    offer.buy_price = buy_price;
+                    write_offer(e, offer);
+                }
+
+
+                pub fn get_offer(e: Env) -> Offer {
+                    let Thing_to_return: Offer;
+                    Thing_to_return = load_offer(e);
+                    return Thing_to_return;
+                }
+            }
+
+            pub fn load_offer(env: &Env) -> Offer {
+                let Thing_to_return: Offer;
+                let mut METHOD_CALL_EXPRESSION_4 = env.storage();
+                let mut METHOD_CALL_EXPRESSION_3 = METHOD_CALL_EXPRESSION_4.instance();
+                let mut METHOD_CALL_EXPRESSION_0 = METHOD_CALL_EXPRESSION_3.get(DataKey::Offer);
+                Thing_to_return = METHOD_CALL_EXPRESSION_0.unwrap();
+                return Thing_to_return;
+            }
+
+
+            pub fn write_offer(env: &Env, offer: &Offer)  {
+                let mut METHOD_CALL_EXPRESSION_5 = env.storage();
+                let mut METHOD_CALL_EXPRESSION_4 = METHOD_CALL_EXPRESSION_5.instance();
+                METHOD_CALL_EXPRESSION_4.set(DataKey::Offer, offer);
+            }
           RUST
         end
 
-        # it 'generates the correct contract' do
-        #   puts "\nActual"
-        #   puts described_class.generate(contract)
-        #   puts "\n"
+        it 'generates the correct contract' do
+          puts "\nActual"
+          puts described_class.generate(contract)
+          puts "\n"
 
-        #   expect(described_class.generate(contract).gsub("\t", '').gsub(' ',
-        #                                                                 '').gsub("\n", '')).to eq(expected_output.gsub("\t", '').gsub(
-        #                                                                   ' ', ''
-        #                                                                 ).gsub("\n", ''))
-        # end
+          expect(described_class.generate(contract).gsub("\t", '').gsub(' ',
+                                                                        '').gsub("\n", '')).to eq(expected_output.gsub("\t", '').gsub(
+                                                                          ' ', ''
+                                                                        ).gsub("\n", ''))
+        end
+      end
+
+      context 'when custom types contract' do
+        let(:contract_name) { 'IncrementContract' }
+        let(:contract_state) do
+          [
+            DTRCore::State.new(
+              'STATE',
+              'String',
+              '"STATE"'
+            )
+          ]
+        end
+
+        let(:contract_user_defined_types) do
+          [
+            DTRCore::UserDefinedType.new(
+              'State_STRUCT',
+              [
+                { name: 'count', type: 'Integer' },
+                { name: 'last_incr', type: 'Integer' }
+              ]
+            )
+          ]
+        end
+
+        let(:contract_interface) do
+          [
+            DTRCore::Function.new(
+              'increment',
+              [
+                { name: 'env', type_name: 'Env' },
+                { name: 'incr', type_name: 'Integer' }
+              ],
+              'Integer',
+              [
+                ins(instruction: 'evaluate', inputs: ['env.clone'], assign: 'CALL_EXPRESSION_ARG_1_0', scope: 0, id: 3),
+                ins(instruction: 'evaluate', inputs: %w[get_state CALL_EXPRESSION_ARG_1_0], assign: 'state',
+                    scope: 0, id: 6),
+                ins(instruction: 'add', inputs: %w[state.count incr], assign: 'state.count', scope: 0, id: 14),
+                ins(instruction: 'assign', inputs: ['incr'], assign: 'state.last_incr', scope: 0, id: 22),
+                ins(instruction: 'evaluate', inputs: ['env.storage'], assign: 'METHOD_CALL_EXPRESSION_28', scope: 0,
+                    id: 31),
+                ins(instruction: 'evaluate', inputs: ['METHOD_CALL_EXPRESSION_28.instance'],
+                    assign: 'METHOD_CALL_EXPRESSION_27', scope: 0, id: 32),
+                ins(instruction: 'evaluate', inputs: ['METHOD_CALL_EXPRESSION_27.set', 'STATE', 'state'], scope: 0,
+                    id: 33),
+                ins(instruction: 'return', inputs: ['state.count'], scope: 0, id: 0)
+              ]
+            ),
+            DTRCore::Function.new(
+              'get_state',
+              [
+                { name: 'env', type_name: 'Env' }
+              ],
+              'State',
+              [
+                ins(instruction: 'evaluate', inputs: ['env.storage'], assign: 'METHOD_CALL_EXPRESSION_47', scope: 0,
+                    id: 50),
+                ins(instruction: 'evaluate', inputs: ['METHOD_CALL_EXPRESSION_47.instance'],
+                    assign: 'METHOD_CALL_EXPRESSION_46', scope: 0, id: 51),
+                ins(instruction: 'evaluate', inputs: ['METHOD_CALL_EXPRESSION_46.get', 'STATE'],
+                    assign: 'METHOD_CALL_EXPRESSION_43', scope: 0, id: 52),
+                ins(instruction: 'instantiate_object', inputs: %w[UDT State 0 0], assign: 'METHOD_CALL_ARG_1_38',
+                    scope: 0, id: 41),
+                ins(instruction: 'evaluate', inputs: ['METHOD_CALL_EXPRESSION_43.unwrap_or', 'METHOD_CALL_ARG_1_38'],
+                    assign: 'Thing_to_return', scope: 0, id: 53),
+                ins(instruction: 'return', inputs: ['Thing_to_return'], scope: 0, id: 0)
+              ]
+            )
+          ]
+        end
+
+        let(:contract_helpers) { nil }
+        let(:contract_non_translatables) { nil }
+
+        let(:contract) do
+          DTRCore::Contract.new(
+            contract_name,
+            contract_state,
+            contract_interface,
+            contract_user_defined_types,
+            contract_helpers,
+            contract_non_translatables
+          )
+        end
+
+        let(:expected_output) do
+          <<~RUST
+            #![no_std]
+            use soroban_sdk::{contract, contracttype, String, contractimpl, Env, auth::Context, IntoVal, unwrap::UnwrapOptimized};
+
+            #[contracttype]
+            #[derive(Clone, Debug, Eq, PartialEq)]
+            pub struct State {
+                pub count: i128,
+                pub last_incr: i128,
+            }
+
+            const STATE: String = String::from_str("STATE");
+            #[contract]
+            pub struct IncrementContract;
+
+            #[contractimpl]
+            impl IncrementContract {
+                pub fn increment(env: Env, incr: i128) -> i128 {
+                    let Thing_to_return: i128;
+                    let mut CALL_EXPRESSION_ARG_1_0 = env.clone();
+                    let mut state = Self::get_state(CALL_EXPRESSION_ARG_1_0);
+                    state.count = state.count + incr;
+                    state.last_incr = incr;
+                    let mut METHOD_CALL_EXPRESSION_28 = env.storage();
+                    let mut METHOD_CALL_EXPRESSION_27 = METHOD_CALL_EXPRESSION_28.instance();
+                    METHOD_CALL_EXPRESSION_27.set(STATE, state);
+                    return state.count;
+                }
+
+
+                pub fn get_state(env: Env) -> State {
+                    let Thing_to_return: State;
+                    let mut METHOD_CALL_EXPRESSION_47 = env.storage();
+                    let mut METHOD_CALL_EXPRESSION_46 = METHOD_CALL_EXPRESSION_47.instance();
+                    let mut METHOD_CALL_EXPRESSION_43 = METHOD_CALL_EXPRESSION_46.get(STATE);
+                    let mut METHOD_CALL_ARG_1_38 = State{count: 0, last_incr: 0};
+                    Thing_to_return = METHOD_CALL_EXPRESSION_43.unwrap_or(METHOD_CALL_ARG_1_38);
+                    return Thing_to_return;
+                }
+            }
+          RUST
+        end
+
+        it 'generates the correct contract' do
+          puts "\nActual"
+          puts described_class.generate(contract)
+          puts "\n"
+          expect(described_class.generate(contract)).to eq(expected_output)
+        end
+      end
+
+      context 'when logging contract' do
+        let(:contract_name) { 'Contract' }
+        let(:contract_state) { nil }
+        let(:contract_user_defined_types) { nil }
+        let(:contract_interface) do
+          [
+            DTRCore::Function.new(
+              'log',
+              [
+                { name: 'env', type_name: 'Env' },
+                { name: 'value', type_name: 'String' }
+              ],
+              nil,
+              [
+                ins(instruction: 'print', inputs: ['env', '"Hello {}"', 'value'], scope: 0, id: 0)
+              ]
+            )
+          ]
+        end
+        let(:contract_helpers) { nil }
+        let(:contract_non_translatables) { nil }
+
+        let(:contract) do
+          DTRCore::Contract.new(
+            contract_name,
+            contract_state,
+            contract_interface,
+            contract_user_defined_types,
+            contract_helpers,
+            contract_non_translatables
+          )
+        end
+
+        let(:expected_output) do
+          <<~RUST
+            #![no_std]
+            use soroban_sdk::{contract, contractimpl, log, Env, String, auth::Context, IntoVal, unwrap::UnwrapOptimized};
+
+            #[contract]
+            pub struct Contract;
+
+            #[contractimpl]
+            impl Contract {
+                pub fn log(env: Env, value: String)  {
+                    log!(env, "Hello {}", value);
+                }
+            }
+          RUST
+        end
+
+        it 'generates the correct contract' do
+          expect(described_class.generate(contract)).to eq(expected_output)
+        end
       end
     end
   end

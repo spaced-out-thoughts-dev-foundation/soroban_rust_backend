@@ -3,7 +3,7 @@
 module SorobanRustBackend
   module Instruction
     # This class handles the add instruction.
-    class Divide < Handler
+    class Divide < BinaryInstruction
       def initialize(instruction, metadata)
         super('/', instruction, metadata)
       end
