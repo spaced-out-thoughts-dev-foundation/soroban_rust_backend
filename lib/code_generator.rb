@@ -25,7 +25,7 @@ module SorobanRustBackend
 
         return_string << "#{'    ' * indentation}#{InstructionHandler.new(instruction, y[2]).generate_rust}\n"
 
-        if instruction.instruction == 'exit_with_message' && instruction.scope != 0
+        if (instruction.instruction == 'exit_with_message' || instruction.instruction == 'return' || instruction.instruction == 'goto') && instruction.scope != 0
           jump_back_indent = indentation - 1
           return_string << "#{'    ' * jump_back_indent}}\n"
         end
