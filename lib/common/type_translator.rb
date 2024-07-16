@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module SorobanRustBackend
   module Common
     # TypeTranslator translates DTR types to Rust types

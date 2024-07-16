@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module SorobanRustBackend
   module Instruction
     # This class handles the or instruction.

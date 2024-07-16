@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 RSpec.describe SorobanRustBackend::CodeGenerator do
@@ -188,8 +190,6 @@ RSpec.describe SorobanRustBackend::CodeGenerator do
           ins(instruction: 'jump', inputs: ['0'], scope: 1, id: 3),
           # 4
           ins(instruction: 'exit_with_message', inputs: ['"Can\'t parse integer: \'{count_str}\'"'], scope: 2, id: 4),
-          # 5
-          ins(instruction: 'jump', inputs: ['0'], scope: 2, id: 5),
           # 6
           ins(instruction: 'instantiate_object', inputs: %w[Tuple count item], assign: 'Thing_to_return',
               scope: 0, id: 6),
@@ -205,7 +205,7 @@ RSpec.describe SorobanRustBackend::CodeGenerator do
           else {
               panic!("Can't parse integer: '{count_str}'");
           }
-          let mut Thing_to_return = (count, item);
+          Thing_to_return = (count, item);
           return Thing_to_return;
         RUST
       end
@@ -318,9 +318,7 @@ RSpec.describe SorobanRustBackend::CodeGenerator do
           # 1
           ins(instruction: 'jump', inputs: %w[CONDITIONAL_RESULT_1 1], scope: 0, id: 1),
           # 2
-          ins(instruction: 'exit_with_message', inputs: ['"Oh no! We are inside 1!"'], scope: 1, id: 2),
-          # 3
-          ins(instruction: 'jump', inputs: ['0'], scope: 1, id: 3)
+          ins(instruction: 'exit_with_message', inputs: ['"Oh no! We are inside 1!"'], scope: 1, id: 2)
         ]
       end
 
@@ -489,7 +487,7 @@ RSpec.describe SorobanRustBackend::CodeGenerator do
           let mut ITERATOR_1 = range_thing;
           let mut OPTION_i = ITERATOR_1.next();
           while let Some(i) = OPTION_i {
-              sum = sum + i;
+              let mut sum = sum + i;
               OPTION_i = ITERATOR_1.next();
           }
           return sum;
@@ -502,27 +500,7 @@ RSpec.describe SorobanRustBackend::CodeGenerator do
     end
   end
 
-  describe 'when data structure' do
-    context 'when struct' do
-    end
-
-    context 'when vec' do
-    end
-
-    context 'when enum' do
-    end
-
-    context 'when range' do
-    end
-
-    context 'when tuple' do
-    end
-  end
-
   describe 'when macro' do
-    context 'when println!' do
-    end
-
     context 'when log!' do
       let(:instruction) do
         [
@@ -541,9 +519,6 @@ RSpec.describe SorobanRustBackend::CodeGenerator do
       end
     end
 
-    context 'when sol!' do
-    end
-
     context 'when panic!' do
       let(:instruction) do
         [
@@ -560,78 +535,6 @@ RSpec.describe SorobanRustBackend::CodeGenerator do
       it 'generates the correct Rust code' do
         expect(described_class.new(instruction).generate).to eq(expected_output)
       end
-    end
-  end
-
-  describe 'when includes imports' do
-  end
-
-  describe 'when includes mod imports' do
-  end
-
-  describe 'when typing' do
-    context 'when explicit typing for assign' do
-    end
-  end
-
-  describe 'when handling a return' do
-    context 'when explicit return' do
-    end
-
-    context 'when implicit return' do
-    end
-
-    context 'when returning value from a block' do
-    end
-
-    context 'when returning value set earlier' do
-    end
-  end
-
-  describe 'when consts' do
-    context 'when const with type' do
-    end
-  end
-
-  describe 'when functions' do
-    context 'when closure' do
-      let(:instruction) do
-        [
-          ins(id: 0, instruction: 'assign', inputs: ['20'], assign: 'x', scope: 0),
-          ins(id: 7, instruction: 'add', inputs: %w[x a], assign: 'BINARY_EXPRESSION_LEFT_1', scope: 0),
-          ins(id: 9, instruction: 'add', inputs: %w[BINARY_EXPRESSION_LEFT_1 b], assign: 'add_closure', scope: 0),
-          ins(id: 16, instruction: 'evaluate', inputs: %w[add_closure 1 21], assign: 'Thing_to_return', scope: 0),
-          ins(id: 20, instruction: 'return', inputs: ['Thing_to_return'], scope: 0)
-        ]
-      end
-
-      let(:expected_output) do
-        <<~RUST
-          let x = 20;
-          let add_closure = |a, b| x + a + b;
-
-          add_closure(1, 21)
-        RUST
-      end
-
-      # it 'generates the correct Rust code' do
-      #   puts "\nActual"
-      #   puts described_class.new(instruction).generate
-      #   puts "\n"
-
-      #   expect(described_class.new(instruction).generate).to eq(expected_output)
-      # end
-    end
-
-    context 'when chained method invocations' do
-    end
-  end
-
-  describe 'when handling variables' do
-    context 'when it must be mutable' do
-    end
-
-    context 'when it is a reference' do
     end
   end
 end

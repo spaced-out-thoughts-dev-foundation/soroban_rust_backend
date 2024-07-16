@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 Gem::Specification.new do |spec|
   spec.name = 'dtr_to_rust'
   spec.version = '0.12.1'

@@ -1,19 +1,32 @@
-# frozen_string_literal: true
-
 module SorobanRustBackend
   module Instruction
     # This class is responsible for generating Rust code for the LogString instruction.
     class InstantiateObject < Handler
       def handle
+        @ref_preface = false
+        if @instruction.inputs[0] == '&'
+          @ref_preface = true
+          @instruction.inputs.shift
+        end
+
         case @instruction.inputs[0]
         when 'List'
           handle_list
         when 'UDT'
           handle_udt
+
         when 'Tuple'
-          "let mut #{@instruction.assign} = (#{normalish_inputs});"
+          if @instruction.assign.include?('.') || @instruction.assign == 'Thing_to_return'
+            "#{@instruction.assign} = #{@ref_preface ? '&' : ''}(#{normalish_inputs});"
+          else
+            "let mut #{@instruction.assign} = #{@ref_preface ? '&' : ''}(#{normalish_inputs});"
+          end
         when 'Range'
-          "let mut #{@instruction.assign} = #{range_inputs};"
+          if @instruction.assign.include?('.') || @instruction.assign == 'Thing_to_return'
+            "#{@instruction.assign} = #{@ref_preface ? '&' : ''}#{range_inputs};"
+          else
+            "let mut #{@instruction.assign} = #{@ref_preface ? '&' : ''}#{range_inputs};"
+          end
         else
           raise "Unknown object type: #{@instruction.inputs[0]}"
         end
@@ -22,7 +35,11 @@ module SorobanRustBackend
       private
 
       def handle_list
-        "let mut #{@instruction.assign} = vec![#{normalish_inputs}];"
+        if @instruction.assign.include?('.') || @instruction.assign == 'Thing_to_return'
+          "#{@instruction.assign} = #{@ref_preface ? '&' : ''}vec![#{normalish_inputs}];"
+        else
+          "let mut #{@instruction.assign} = #{@ref_preface ? '&' : ''}vec![#{normalish_inputs}];"
+        end
       end
 
       def range_inputs
@@ -48,9 +65,9 @@ module SorobanRustBackend
       def handle_udt
         udt_found = @instruction.inputs[@instruction.inputs.size - 1]
 
-        inputs_sans_udt = @instruction.inputs[..-3][2..]
+        inputs_sans_udt = @instruction.inputs[..-2][2..]
         assignment = "let mut #{@instruction.assign} = "
-        udt = "#{@instruction.inputs[1]}{"
+        udt = "#{@ref_preface ? '&' : ''}#{@instruction.inputs[1]}{"
         inputs = inputs_to_rust_string(inputs_sans_udt, udt_found.attributes.map do |x|
                                                           x[:name]
                                                         end)
@@ -68,16 +85,15 @@ module SorobanRustBackend
       end
 
       def foobar(input)
-        input
-        # decorated_input = Common::InputInterpreter.interpret(input)
+        decorated_input = Common::InputInterpreter.interpret(input)
 
-        # if decorated_input[:type] == 'string'
-        #   "symbol_short!(#{input})"
-        # elsif decorated_input[:needs_reference] && input == 'env'
-        #   "&#{input}"
-        # else
-        #   input
-        # end
+        if decorated_input[:type] == 'string'
+          "String::from_str(&env, #{input})"
+        elsif decorated_input[:needs_reference] && input == 'env'
+          "&#{input}"
+        else
+          input
+        end
       end
 
       def handle_input(input, udt_type_name)

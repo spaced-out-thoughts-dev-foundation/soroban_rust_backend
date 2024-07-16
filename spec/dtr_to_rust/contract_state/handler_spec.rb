@@ -15,7 +15,7 @@ RSpec.describe SorobanRustBackend::ContractState::Handler do
 
       let(:expected_output) do
         <<~RUST
-          const name: String = String::from_str("some_initial_value");
+          const name: Symbol = symbol_short!("some_initial_value");
         RUST
       end
 

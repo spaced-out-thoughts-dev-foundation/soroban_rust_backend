@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 # This is the main module for the DTR to Rust gem.
 module SorobanRustBackend
   autoload :LCPBT_Forrest, 'lcpbt_forrest'
@@ -39,6 +37,7 @@ module SorobanRustBackend
 
   module Common
     autoload :TypeTranslator, './lib/common/type_translator'
+    autoload :InputInterpreter, './lib/common/input_interpreter'
   end
 
   module NonTranslatables

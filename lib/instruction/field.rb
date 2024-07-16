@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module SorobanRustBackend
   module Instruction
     # This class is responsible for generating Rust code for the Field instruction.

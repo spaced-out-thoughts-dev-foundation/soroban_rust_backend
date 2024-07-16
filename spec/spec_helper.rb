@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require 'soroban_rust_backend'
 require 'open3'
 require 'dtr_core'

@@ -12,14 +12,12 @@ module SorobanRustBackend
     end
 
     def generate
-      content = ''
-
       content = "\n#{@is_helper ? '' : '    '}pub fn #{@function.name}(#{generate_function_args}) "
       content += generate_function_output
 
       content += " {\n"
       if @function.output
-        content += "#{@is_helper ? '    ' : '        '}let Thing_to_return: #{Common::TypeTranslator.translate_type(@function.output)};\n"
+        content += "#{@is_helper ? '    ' : '        '}let mut Thing_to_return: #{Common::TypeTranslator.translate_type(@function.output)};\n"
       end
       content += generate_instructions_for_blocks(@function.instructions)
 

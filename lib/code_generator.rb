@@ -24,6 +24,11 @@ module SorobanRustBackend
         indentation = og_instruction.instruction == 'goto' ? y[2][:return_scope] + @base_indentation : y[1]
 
         return_string << "#{'    ' * indentation}#{InstructionHandler.new(instruction, y[2]).generate_rust}\n"
+
+        if instruction.instruction == 'exit_with_message' && instruction.scope != 0
+          jump_back_indent = indentation - 1
+          return_string << "#{'    ' * jump_back_indent}}\n"
+        end
       end
 
       return_string
@@ -56,8 +61,8 @@ module SorobanRustBackend
           instruction.id
         )
       elsif while_loop?(instruction, metadata)
-        operator_variable = "#{metadata[:end_of_iteration_check][:lhs]}"
-        iterator_variable = "#{metadata[:end_of_iteration_check][:rhs]}"
+        operator_variable = (metadata[:end_of_iteration_check][:lhs]).to_s
+        iterator_variable = (metadata[:end_of_iteration_check][:rhs]).to_s
 
         DTRCore::Instruction.new(
           'jump',
@@ -73,10 +78,15 @@ module SorobanRustBackend
         @user_defined_types.each do |udt|
           fixed_udt_name = udt_name_fix(udt)
 
-          if fixed_udt_name == inputs[1]
-            udt_found = inputs.push(udt)
-            break
-          end
+          next unless fixed_udt_name == inputs[1] || (fixed_udt_name == inputs[2] && inputs[0] == '&')
+
+          udt_found = if inputs.last.instance_of?(DTRCore::UserDefinedType)
+                        inputs.last
+                      else
+
+                        inputs.push(udt)
+                      end
+          break
         end
 
         raise "Unable to instantiate unrecognized UDT: #{inputs[1]}" if udt_found.nil?
@@ -132,7 +142,7 @@ module SorobanRustBackend
     end
 
     def udt?(instruction)
-      instruction.instruction == 'instantiate_object' && instruction.inputs[0] == 'UDT'
+      instruction.instruction == 'instantiate_object' && (instruction.inputs[0] == 'UDT' || (instruction.inputs[0] == '&' && instruction.inputs[1] == 'UDT'))
     end
   end
 end

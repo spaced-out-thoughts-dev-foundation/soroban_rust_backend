@@ -1,10 +1,34 @@
-# frozen_string_literal: true
-
 module SorobanRustBackend
   module Instruction
     # This class is responsible for generating Rust code for the Evaluate instruction.
     class Evaluate < Handler
       def handle
+        @ref_preface = false
+
+        if @instruction.inputs[0] == '&'
+          @ref_preface = true
+          @instruction.inputs.shift
+        end
+
+        adjusted_inputs = []
+        last_was_ref = false
+        @instruction.inputs.each do |input|
+          if input == '&'
+            last_was_ref = true
+          else
+            adjusted_inputs << (last_was_ref ? "&#{input}" : input)
+            last_was_ref = false
+          end
+        end
+
+        @instruction = DTRCore::Instruction.new(
+          @instruction.instruction,
+          adjusted_inputs,
+          @instruction.assign,
+          @instruction.scope,
+          @instruction.id
+        )
+
         handle_keyword_method_invocation
       end
 
@@ -44,8 +68,8 @@ module SorobanRustBackend
 
         assignment_rust = "let mut #{assignment} = "
         # TODO: make this less hacky evaluated_method_name.end_with?('set')
-        body_rust = "#{invocation_name(evaluated_method_name)}(#{inputs_to_rust_string(inputs,
-                                                                                       append_ref_to_num?, try_append_ref_to_var?)});"
+        body_rust = "#{@ref_preface ? '&' : ''}#{invocation_name(evaluated_method_name)}(#{inputs_to_rust_string(inputs,
+                                                                                                                 append_ref_to_num?, try_append_ref_to_var?)});"
         "#{if assignment.nil?
              ''
            else

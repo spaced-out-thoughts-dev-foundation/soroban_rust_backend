@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module SorobanRustBackend
   class Silviculturist
     attr_accessor :forrest
@@ -127,9 +125,14 @@ module SorobanRustBackend
 
         return plant_trees(scope, rest_of_instructions, from_id: cur_instruction.id, indentation:, metadata:)
       else
-        last_symbol_table = metadata[:symbol_table]
-        last_symbol_table[cur_instruction.assign] = {} unless last_symbol_table.include?(cur_instruction.assign)
-        last_symbol_table[cur_instruction.assign][cur_instruction.scope] = cur_instruction
+        last_symbol_table = metadata[:symbol_table].clone
+
+        if cur_instruction.assign
+          assignment = cur_instruction.assign
+          assignment = assignment.split('|||').first if assignment.include?('|||')
+          last_symbol_table[assignment] = {} unless last_symbol_table.include?(assignment)
+          last_symbol_table[assignment][cur_instruction.scope] = cur_instruction
+        end
 
         metadata = {
           last_node_was_conditional_jump: false,

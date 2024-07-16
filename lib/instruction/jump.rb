@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module SorobanRustBackend
   module Instruction
     # This class handles the jump instruction.
@@ -17,7 +15,7 @@ module SorobanRustBackend
         elsif @instruction.inputs.size == 4 && last_instruction_is_while_loop
           handle_while_loop
         else
-          raise 'Invalid jump instruction. Received too many inputs: ' + @instruction.inputs.size.to_s
+          raise "Invalid jump instruction. Received too many inputs: #{@instruction.inputs.size}"
         end
       end
 

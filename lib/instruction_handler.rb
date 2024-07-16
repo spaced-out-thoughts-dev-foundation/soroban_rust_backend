@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module SorobanRustBackend
   # This class is responsible for generating Rust code for a single instruction.
   class InstructionHandler

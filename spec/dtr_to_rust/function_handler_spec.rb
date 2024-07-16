@@ -18,16 +18,16 @@ RSpec.describe SorobanRustBackend::FunctionHandler do
       let(:expected_output) do
         <<~RUST
           pub fn add(a: i128, b: i128) -> i128 {
-            let Thing_to_return: i128;
+            let mut Thing_to_return: i128;
           }
         RUST
       end
 
       it 'generates the correct function' do
-        expect(described_class.generate(function, false, []).gsub("\t", '').gsub(' ',
-                                                                                 '').gsub("\n", '')).to eq(expected_output.gsub("\t", '').gsub(
-                                                                                   ' ', ''
-                                                                                 ).gsub("\n", ''))
+        expect(described_class.generate(function, false, [], []).gsub("\t", '').gsub(' ',
+                                                                                     '').gsub("\n", '')).to eq(expected_output.gsub("\t", '').gsub(
+                                                                                       ' ', ''
+                                                                                     ).gsub("\n", ''))
       end
     end
 
@@ -47,7 +47,7 @@ RSpec.describe SorobanRustBackend::FunctionHandler do
       let(:expected_output) do
         <<~RUST
           pub fn make_foobar_udt() {
-            let mut udt_result = Foobar { num: 0, name: "hello", is_active: false };
+            let mut udt_result = Foobar { num: 0, name: String::from_str(&env, "hello"), is_active: false };
           }
         RUST
       end
@@ -66,7 +66,7 @@ RSpec.describe SorobanRustBackend::FunctionHandler do
       end
 
       it 'generates the correct function' do
-        result = described_class.generate(function, false, udts)
+        result = described_class.generate(function, false, udts, [])
         expect(result.gsub("\t", '').gsub(' ',
                                           '').gsub("\n", '')).to eq(expected_output.gsub("\t", '').gsub(
                                             ' ', ''
@@ -115,24 +115,24 @@ RSpec.describe SorobanRustBackend::FunctionHandler do
       let(:expected_output) do
         <<~RUST
           pub fn add(a: i128, b: i128) -> i128 {
-              let Thing_to_return: i128;
+              let mut Thing_to_return: i128;
               let mut RANGE_START_1 = a;
               let mut RANGE_END_2 = b;
               let mut range_thing = RANGE_START_1..RANGE_END_2;
               let mut ITERATOR_1 = range_thing;
               let mut OPTION_i = ITERATOR_1.next();
               while let Some(i) = OPTION_i {
-                  sum = sum + i;
+                  let mut sum = sum + i;
                   OPTION_i = ITERATOR_1.next();
               }
               return sum;
-
           }
+
         RUST
       end
 
       it 'generates the correct function' do
-        result = described_class.generate(function, false, [])
+        result = described_class.generate(function, false, [], [])
         expect(result.gsub("\t", '').gsub(' ',
                                           '').gsub("\n", '')).to eq(expected_output.gsub("\t", '').gsub(
                                             ' ', ''

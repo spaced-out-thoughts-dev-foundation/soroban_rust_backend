@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module SorobanRustBackend
   class UserDefinedTypesHandler
     def initialize(user_defined_type)

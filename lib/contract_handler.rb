@@ -21,10 +21,8 @@ module SorobanRustBackend
 
       @content += NonTranslatables::Handler.generate(dtr_contract.non_translatables) if dtr_contract.non_translatables
 
-      if dtr_contract.user_defined_types
-        dtr_contract.user_defined_types.each do |user_defined_type|
-          @content += SorobanRustBackend::UserDefinedTypesHandler.generate(user_defined_type)
-        end
+      dtr_contract.user_defined_types&.each do |user_defined_type|
+        @content += SorobanRustBackend::UserDefinedTypesHandler.generate(user_defined_type)
       end
       @content += ContractState::Handler.generate(dtr_contract.state) if dtr_contract.state
       generate_contract_name
