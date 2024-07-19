@@ -535,4 +535,99 @@ RSpec.describe SorobanRustBackend::CodeGenerator do
       end
     end
   end
+
+  describe 'when binary instruction' do
+    context 'when add' do
+      context 'when assign is a variable' do
+        let(:instruction) do
+          [
+            ins(id: 0, instruction: 'add', inputs: %w[10 11], assign: 'result', scope: 0)
+          ]
+        end
+
+        let(:expected_output) do
+          <<~RUST
+            let mut result = 10 + 11;
+          RUST
+        end
+
+        it 'generates the correct Rust code' do
+          expect(described_class.new(instruction).generate).to eq(expected_output)
+        end
+      end
+
+      context 'when assign is a field' do
+        let(:instruction) do
+          [
+            ins(id: 0, instruction: 'add', inputs: %w[10 11], assign: 'foo.bar', scope: 0)
+          ]
+        end
+
+        let(:expected_output) do
+          <<~RUST
+            foo.bar = 10 + 11;
+          RUST
+        end
+
+        it 'generates the correct Rust code' do
+          expect(described_class.new(instruction).generate).to eq(expected_output)
+        end
+      end
+
+      context 'when assign is a return value' do
+        let(:instruction) do
+          [
+            ins(id: 0, instruction: 'add', inputs: %w[10 11], assign: 'Thing_to_return', scope: 0)
+          ]
+        end
+
+        let(:expected_output) do
+          <<~RUST
+            Thing_to_return = 10 + 11;
+          RUST
+        end
+
+        it 'generates the correct Rust code' do
+          expect(described_class.new(instruction).generate).to eq(expected_output)
+        end
+      end
+
+      context 'when result is ampersanded' do
+        let(:instruction) do
+          [
+            ins(id: 0, instruction: 'add', inputs: %w[& 10 11], assign: 'result', scope: 0)
+          ]
+        end
+
+        let(:expected_output) do
+          <<~RUST
+            let mut result = &(10 + 11);
+          RUST
+        end
+
+        it 'generates the correct Rust code' do
+          expect(described_class.new(instruction).generate).to eq(expected_output)
+        end
+      end
+
+      # TODO: no way to differentiate between assign and first argument being ampersanded
+      context 'when argument is ampersanded' do
+        let(:instruction) do
+          [
+            ins(id: 0, instruction: 'add', inputs: %w[10 & 11], assign: 'result', scope: 0)
+          ]
+        end
+
+        let(:expected_output) do
+          <<~RUST
+            let mut result = 10 + &11;
+          RUST
+        end
+
+        it 'generates the correct Rust code' do
+          expect(described_class.new(instruction).generate).to eq(expected_output)
+        end
+      end
+    end
+  end
 end

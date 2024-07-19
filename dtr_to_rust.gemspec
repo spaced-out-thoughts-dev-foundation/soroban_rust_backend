@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name = 'dtr_to_rust'
-  spec.version = '0.14.5'
+  spec.version = '0.14.8'
   spec.authors = ['Rob Durst']
   spec.email = ['me@robdurst.com']
   spec.summary       = 'Rust to DTR translator (Digicus Textual Representation).'

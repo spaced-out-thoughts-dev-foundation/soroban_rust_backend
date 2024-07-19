@@ -67,6 +67,7 @@ module SorobanRustBackend
         Val
         log
         token
+        HashMap
       ]
 
       used_imports = []
