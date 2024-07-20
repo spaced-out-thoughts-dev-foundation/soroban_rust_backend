@@ -55,7 +55,7 @@ module SorobanRustBackend
       end
 
       def udt_name_fix(udt)
-        if udt.name.end_with?('_STRUCT') || udt.name.end_with?('_ENUM')
+        if udt.name&.end_with?('_STRUCT') || udt.name&.end_with?('_ENUM')
           udt.name.split('_')[0..-2].join('_')
         else
           udt.name
